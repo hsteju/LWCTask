@@ -25,7 +25,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
     logo = logo;
     jsLoaded = false;
 
-    // LOAD SCRIPTS
     connectedCallback() {
         Promise.all([
             loadScript(this, jspdfLib),
@@ -37,7 +36,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         .catch(err => console.error(err));
     }
 
-    // GET OPPORTUNITY
     @wire(getOpportunity, { oppId: '$recordId' })
     wiredOpp({ data }) {
         if (data) {
@@ -45,7 +43,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         }
     }
 
-    // GET PRODUCTS
     @wire(getProducts)
     wiredProd({ data }) {
         if (data) this.products = data;
@@ -58,14 +55,12 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         }));
     }
 
-    // STEP CONTROL
     get isStepOne() { return this.step === 1; }
     get isStepTwo() { return this.step === 2; }
 
     nextStep() { this.step = 2; }
     previousStep() { this.step = 1; }
 
-    // ADD LINE
     addLineItem() {
         this.lineItems = [
             ...this.lineItems,
@@ -79,7 +74,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         ];
     }
 
-    // HANDLE CHANGE
     handleChange(event) {
         const i = event.target.dataset.index;
         const field = event.target.dataset.field;
@@ -95,12 +89,10 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         this.lineItems = [...this.lineItems];
     }
 
-    // TOTAL
     get totalAmount() {
         return this.lineItems.reduce((s, i) => s + Number(i.total || 0), 0);
     }
 
-    // SAVE + PDF
     saveInvoice() {
         saveInvoice({
             opportunityId: this.recordId,
@@ -116,12 +108,10 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         });
     }
 
-    // FORMAT
     formatCurrency(val) {
         return Number(val).toLocaleString('en-IN');
     }
 
-    // CONVERT LOGO
     getBase64Image(imgUrl) {
         return fetch(imgUrl)
             .then(res => res.blob())
@@ -132,28 +122,22 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
             }));
     }
 
-    // GENERATE PDF (PROFESSIONAL)
     async generatePDF(id) {
 
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
 
         const logoBase64 = await this.getBase64Image(this.logo);
-
-        // LOGO
         doc.addImage(logoBase64, 'PNG', 80, 10, 50, 20);
 
-        // TITLE
         doc.setFontSize(22);
         doc.setFont("helvetica", "bold");
         doc.text("INVOICE", 105, 40, { align: "center" });
 
-        // OPPORTUNITY
         doc.setFontSize(11);
         doc.setFont("helvetica", "normal");
         doc.text(`Opportunity: ${this.opportunityName}`, 14, 55);
 
-        // TABLE DATA
         const tableData = this.lineItems.map(item => [
             item.productName,
             item.quantity,
@@ -161,7 +145,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
             `INR ${this.formatCurrency(item.total)}`
         ]);
 
-        // TABLE
         doc.autoTable({
             startY: 65,
             head: [['Product', 'Qty', 'Price', 'Total']],
@@ -179,7 +162,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
             }
         });
 
-        // TOTAL
         const finalY = doc.lastAutoTable.finalY;
 
         doc.setFontSize(12);
@@ -191,7 +173,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
             finalY + 15
         );
 
-        // FOOTER
         doc.setFontSize(9);
         doc.setFont("helvetica", "normal");
 
@@ -205,7 +186,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         doc.save(`Invoice_${id}.pdf`);
     }
 
-    // NAVIGATE
     navigate(id) {
         this[NavigationMixin.Navigate]({
             type: 'standard__recordPage',
@@ -216,7 +196,6 @@ export default class InvoiceGenerator extends NavigationMixin(LightningElement) 
         });
     }
 
-    // TOAST
     toast(t, m, v) {
         this.dispatchEvent(new ShowToastEvent({
             title: t,
