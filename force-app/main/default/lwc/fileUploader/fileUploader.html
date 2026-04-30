@@ -1,0 +1,22 @@
+<template>
+    <lightning-card title="Appointment Upload">
+
+        <lightning-input
+            type="file"
+            accept=".csv"
+            onchange={handleFile}>
+        </lightning-input>
+
+        <template if:true={fileName}>
+            <p>Uploaded File: {fileName}</p>
+        </template>
+
+        <lightning-button
+            label="Upload"
+            onclick={uploadFile}>
+        </lightning-button>
+
+        <p>{result}</p>
+
+    </lightning-card>
+</template>

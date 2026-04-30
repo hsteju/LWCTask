@@ -1,0 +1,8 @@
+<apex:page >
+    <h1>
+        My First VisualForce Page Heading
+    </h1>
+    <p>
+        My First VF Page Paragraph
+    </p>
+</apex:page>
